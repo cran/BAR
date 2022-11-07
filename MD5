@@ -1,0 +1,11 @@
+7e4edaba714472228c1e2afad6878273 *DESCRIPTION
+c7f479c3eaba1471c9ab26de890485ea *NAMESPACE
+a221651f546b39b1d8207dc506728d26 *R/get_oc_BAR.R
+26ccb9f2e034058553e36cd18e8eabdb *R/next_allocation_rate_BAR.R
+2181a8ba3c795f08ca290dea39a201f6 *build/vignette.rds
+23244849dadc94e0a4587ff67514b36c *inst/doc/BAR.R
+8c52afb86367713f5aa9a1c483b3090d *inst/doc/BAR.Rmd
+079a77fc93ce8cb6ee263b32df7806d5 *inst/doc/BAR.html
+d08fd39bdbb068492c15c3a97d9045b7 *man/get_oc_BAR.Rd
+0667f8999bfa3dac8c3e462ab7b5cbb4 *man/next_allocation_rate_BAR.Rd
+8c52afb86367713f5aa9a1c483b3090d *vignettes/BAR.Rmd

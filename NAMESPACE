@@ -1,0 +1,2 @@
+importFrom("stats", "rbeta", "rbinom", "runif")
+exportPattern("^[[:alpha:]]+")

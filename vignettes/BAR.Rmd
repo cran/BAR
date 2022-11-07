@@ -1,0 +1,66 @@
+---
+title: "BAR"
+output: rmarkdown::html_vignette
+       
+vignette: >
+  %\VignetteIndexEntry{Bayesian adaptive randomization}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, warning = FALSE}
+library(BAR)
+```
+This vignette provides a step-by-step guidance for applying Bayesian adaptive randomization with binary outcomes using the package `BAR`.
+
+### Function setting
+We first specify the unknown true successful probability (e.g., response rate) for each arm. For example, we have three arms with 0.1 for the control arm, 0.5 and 0.8 for two experimental arms, denoted as `success_prob = c(.1, .5, .8)`. We set up a number of burn-ins for each arm before initiating the adaptive randomization procedure. During the burn-in period, an equal randomization for each arm will be employed. Here the number of burn-in is set up to be 10, denoted as `n_burn_in = 10`, that is, 10 * 3 = 30 patients will be equally randomized to each of three arms. We plan to recruit a total of 150 patients (including number of burn-ins, that is, the BAR procedure for each arm will be applied from the $31^{st}$ patient) into our study and simulate the trial 100 times, that is, we have `tot_num = 150` and `reptime = 100`. The argument `block_size = 1` means that the allocation probability will be updated for the next one incoming patient. An example with `block_size` $\neq 1$ is shown later.
+
+```{r}
+get_oc_BAR(success_prob = c(.1, .5, .8), n_burn_in = 10, tot_num = 150, block_size = 1, reptime = 100, seed = 100)
+```
+The above results consist of two parts. The first part `$avg_alloc_prob` is the average allocation probability for each arm in 100 simulations. The second part `$avg_pat_num` is the average number of patients assigned to each arm.
+
+Sometimes we may want to see the updated allocation probability path after burn-in for each arm for each simulated trial. We can have these results by setting argument `output = "raw"` in the `get_oc_BAR()` function. To save the space of the document, we only show one trial result here. For example, by setting up `reptime = 1`, we can have the following outputs.
+
+```{r}
+get_oc_BAR(success_prob = c(.1, .5, .8), n_burn_in = 10, tot_num = 150, block_size = 1, reptime = 1, output = "raw", seed = 100)
+```
+From the result above, since 10 * 3 = 30 sample size has been used in the burn-in period, we therefore have 120 (= 150 - 30) patients in the adaptive randomization period. We can see the updated allocation probabilities for each arm in each step after the burn-in period.
+
+In this package, we also provide users flexibility to allow update the allocation probability block-wisely by using the `block_size` argument. For example, if `block_size = 1`, it indicates that the assignment of a new patient depends on the previous patients' responses to treatment in the ongoing trial while `block_size = 3`, the assignment of next 3 new patients depend on the previous patients' responses to treatment. An example is shown as below.
+
+```{r}
+get_oc_BAR(success_prob = c(.1, .5, .8), n_burn_in = 10, tot_num = 150, block_size = 3, reptime = 100, seed = 100)
+```
+
+### Bayesian adaptive randomization with fixed allocation ratio for the control arm
+
+In this case, the allocation probability will hold constant for the control arm, which is a usual practice since we want to maintain a good number for the control such that if we want to conduct hypothesis tests between experimental and control arms, we can have a desirable power and results can be interpreted. For this, we can have this argument setting `control_arm = "fixed"` in the function, which will make the allocation probability of control arm (the first slot) to be fixed to $\frac{1}{K}$, where K indicates total number of arms (including control arm).
+
+```{r}
+get_oc_BAR(success_prob = c(.1, .5, .8), n_burn_in = 10, tot_num = 150, block_size = 1, reptime = 100, control_arm = "fixed", seed = 100)
+```
+From the result above, we can see the average allocation probability for control arm is close to 0.33 = $\frac{1}{K},$ where K = 3 here.
+
+### Calculate the allocation probability for the next block of new patients using Bayesian adaptive randomization
+
+Here, we provide two examples. The first example uses the `power_c` to be $\frac{n}{2N}$ (this is a default option), here, N is the pre-planned total sample size and n is the accumulative sample size when updating the allocation probabilities. In this case, we need to have N, an example is shown below.
+
+```{r}
+next_allocation_rate_BAR(n = c(20, 25, 30), success_count = c(2, 9, 15), tot_num = 150, power_c = "n/2N")
+```
+In this example (outputs shown above), we can see that we have 3 arms (the $1^{st}$ is control and $2^{rd}$ and $3^{nd}$ are experimental arms). The study plans to enroll 150 patients and at the time of updating the allocation probabilities for the next patient, the accrual number of patients for the three arms are 20, 25 and 30 with number of responders of 2, 9, and 15, respectively. By using the BAR algorithm, we can compute the allocation probabilities for these three arms are 0.05, 0.266 and 0.684, respectively.
+
+Another example is that we use the `power_c` to be a numeric, e.g., 0.5. In this case, the N is not required. Even you can see that there is still a N in the below code, this N is no use and plays no role in updating the allocation probabilities. Outputs are shown below and can be interpreted similarly.
+
+```{r}
+next_allocation_rate_BAR(n = c(20, 25, 30), success_count = c(2, 10, 15), tot_num = 150, power_c = .5)
+```
