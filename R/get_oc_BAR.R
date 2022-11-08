@@ -45,7 +45,7 @@ get_oc_BAR <- function(success_prob, n_burn_in, tot_num, block_size,
         assign(paste("c", xx, sep = ""), eval(parse(text = paste0("c", xx, "/previous_rem_sum*after_rem_sum"))))
       }
     }
-    prob_matrix <- matrix(NA, tot_num-n_burn_in*length(success_prob), length(success_prob))
+    prob_matrix <- matrix(NA, (tot_num-n_burn_in*length(success_prob))/block_size, length(success_prob))
     for (j in 1:((tot_num-n_burn_in*length(success_prob))/block_size)){
       if(power_c == "n/2N"){
         lambda <- (sum(N)+j-1)/(2*tot_num)
